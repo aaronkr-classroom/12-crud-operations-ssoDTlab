@@ -83,7 +83,24 @@ module.exports = mongoose.model("User", userSchema);
 /**
  * @TODO: pre("save") 훅 설정
  */
-
+userSchema.pre("save", (next) => {
+  let user = this;
+  if (user.subscribedAccount == undefined) {
+    Subscriber.findOne({
+      email: user.email
+    })
+    .then(subscriber => {
+      user.subscribedAccount = subscriber;
+      next();
+    })
+    .catch(error => {
+      console.log(`Error in connecting subscriber: ${error.messange}`);
+      next(error);
+    })
+  } else {
+    next();
+  }
+});
 module.exports = mongoose.model("User", userSchema);
 
 /**
